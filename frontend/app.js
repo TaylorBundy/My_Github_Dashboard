@@ -1,6 +1,7 @@
 let token = "";
 let archivoActual = "";
 const nombreArchivo = document.querySelector("#NombreArchivo");
+const API = "https://my-github-dashboard.onrender.com"
 
 async function cargarRepos() {
   // token = document.getElementById("token").value;
