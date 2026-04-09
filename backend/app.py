@@ -11,7 +11,9 @@ CORS(app)  # 👈 ESTO SOLUCIONA TODO
 # app = Flask(__name__)
 
 GITHUB_API = "https://api.github.com"
-GITHUB_TOKEN = "token"
+#GITHUB_TOKEN = "token"
+
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 @app.route("/repos")
 def get_repos():
