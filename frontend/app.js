@@ -46,14 +46,14 @@ async function clonarRepo(repo) {
 }
 
 async function cargarArchivos(repo) {
-  const res = await fetch(`http://localhost:5000/files?repo=${repo}`);
+  const res = await fetch(`${API}/files?repo=${repo}`);
   const files = await res.json();
 
   archivoActual = files[0];
   const elNombre = archivoActual.split("\\")[1];
 
   const contenido = await fetch(
-    `http://localhost:5000/file?path=${archivoActual}`,
+    `${API}/file?path=${archivoActual}`,
   );
   document.getElementById("editor").value = await contenido.text();
   nombreArchivo.textContent = elNombre;
@@ -62,7 +62,7 @@ async function cargarArchivos(repo) {
 async function guardar() {
   const contenido = document.getElementById("editor").value;
 
-  await fetch("http://localhost:5000/save", {
+  await fetch(`${API}/save`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -75,7 +75,7 @@ async function guardar() {
 }
 
 async function cargarArbol(repo) {
-  const res = await fetch(`http://localhost:5000/tree?repo=${repo}`);
+  const res = await fetch(`${API}/tree?repo=${repo}`);
   const data = await res.json();
 
   const tree = document.getElementById("tree");
@@ -114,7 +114,7 @@ function renderTree(nodes, container) {
       div.classList.add("file");
 
       div.onclick = async () => {
-        const res = await fetch(`http://localhost:5000/file?path=${node.path}`);
+        const res = await fetch(`${API}/file?path=${node.path}`);
 
         const contenido = await res.text();
 
