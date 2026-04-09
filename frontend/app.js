@@ -5,7 +5,7 @@ const API = "https://my-github-dashboard.onrender.com"
 
 async function cargarRepos() {
   // token = document.getElementById("token").value;
-  const res = await fetch("http://localhost:5000/repos");
+  const res = await fetch(`${API}/repos`);
 
   // const res = await fetch("http://localhost:5000/repos", {
   //   headers: {
