@@ -34,8 +34,10 @@ textarea {
   padding: 10px;
   /* width: 300px; */
   width: 50%;
+  max-height: 350px;
   /* height: 400px; */
-  overflow: auto;
+  /* overflow: auto; */
+  overflow-y: auto;
   margin: 5px 0;
 }
 
