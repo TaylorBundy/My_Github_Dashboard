@@ -239,7 +239,7 @@ def save_file():
                 f"https://{username}:{token}@"
             )
 
-            origin.set_url(url_auth)
+            #origin.set_url(url_auth)
 
             # 🚀 Push
             origin.push()
