@@ -119,76 +119,76 @@ def read_file():
 
 #     return jsonify({"status": "guardado"})
 
-# @app.route("/save", methods=["POST"])
-# def save_file():
-#     data = request.json
-#     path = data["path"]
-#     content = data["content"]
-
-#     with open(path, "w", encoding="utf-8") as f:
-#         f.write(content)
-
-#     #repo_path = os.path.dirname(path)
-#     repo = Repo(path, search_parent_directories=True)
-#     #repo = Repo(repo_path)
-
-#     repo.git.add(A=True)
-#     repo.index.commit("Update desde web")
-
-#     # 🔥 AGREGAR ESTO:
-#     origin = repo.remote(name="origin")
-#     origin.push()
-
-#     return jsonify({"status": "guardado y subido"})
-
 @app.route("/save", methods=["POST"])
 def save_file():
-    logs = []
-    try:
-        data = request.json
-        path = data["path"]
-        #print(path)
-        content = data["content"]
-        log(f"Path recibido: {path}")
+    data = request.json
+    path = data["path"]
+    content = data["content"]
 
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
-        #logs.append("Archivo guardado")
-        #logs.append(GITHUB_USERNAME)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
 
-        #repo = Repo(path, search_parent_directories=True)
-        repo = Repo(os.path.dirname(path))
-        log(f"repos: {repo}")
+    repo_path = os.path.dirname(path)
+    #repo = Repo(path, search_parent_directories=True)
+    repo = Repo(repo_path)
 
-        if repo.is_dirty(untracked_files=True):
-            repo.git.add(A=True)
-            repo.index.commit("Update desde web")
-            #logs.append("Commit realizado")
+    repo.git.add(A=True)
+    repo.index.commit("Update desde web")
 
-            #import os
-            token = os.getenv("GITHUB_TOKEN")
+    # 🔥 AGREGAR ESTO:
+    origin = repo.remote(name="origin")
+    origin.push()
 
-            origin = repo.remote(name="origin")
+    return jsonify({"status": "guardado y subido"})
 
-            url = origin.url
-            url = url.replace(".git/", ".git")
-            # url_auth = url.replace("https://", f"https://{GITHUB_TOKEN}@")
-            url_auth = url.replace(
-                "https://",
-                f"https://{GITHUB_USERNAME}:{GITHUB_TOKEN}@"
-            )
+# @app.route("/save", methods=["POST"])
+# def save_file():
+#     logs = []
+#     try:
+#         data = request.json
+#         path = data["path"]
+#         #print(path)
+#         content = data["content"]
+#         log(f"Path recibido: {path}")
 
-            origin.set_url(url_auth)
-            log(f"url: {url_auth}")
-            origin.push()
-            #logs.append("Push realizado")
+#         with open(path, "w", encoding="utf-8") as f:
+#             f.write(content)
+#         #logs.append("Archivo guardado")
+#         #logs.append(GITHUB_USERNAME)
 
-        return jsonify({"status": "ok",
-                        "logs": log})
+#         #repo = Repo(path, search_parent_directories=True)
+#         repo = Repo(os.path.dirname(path))
+#         log(f"repos: {repo}")
 
-    except Exception as e:
-        print("ERROR SAVE:", e)
-        return jsonify({"error": str(e), "logs": logs}), 500
+#         if repo.is_dirty(untracked_files=True):
+#             repo.git.add(A=True)
+#             repo.index.commit("Update desde web")
+#             #logs.append("Commit realizado")
+
+#             #import os
+#             token = os.getenv("GITHUB_TOKEN")
+
+#             origin = repo.remote(name="origin")
+
+#             url = origin.url
+#             url = url.replace(".git/", ".git")
+#             # url_auth = url.replace("https://", f"https://{GITHUB_TOKEN}@")
+#             url_auth = url.replace(
+#                 "https://",
+#                 f"https://{GITHUB_USERNAME}:{GITHUB_TOKEN}@"
+#             )
+
+#             origin.set_url(url_auth)
+#             log(f"url: {url_auth}")
+#             origin.push()
+#             #logs.append("Push realizado")
+
+#         return jsonify({"status": "ok",
+#                         "logs": log})
+
+#     except Exception as e:
+#         print("ERROR SAVE:", e)
+#         return jsonify({"error": str(e), "logs": logs}), 500
     
 logs_global = []
 
