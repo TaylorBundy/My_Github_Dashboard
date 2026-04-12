@@ -119,28 +119,29 @@ def read_file():
 
 #     return jsonify({"status": "guardado"})
 
-@app.route("/save", methods=["POST"])
-def save_file():
-    data = request.json
-    path = data["path"]
-    content = data["content"]
+#ANDA
+# @app.route("/save", methods=["POST"])
+# def save_file():
+#     data = request.json
+#     path = data["path"]
+#     content = data["content"]
 
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(content)
+#     with open(path, "w", encoding="utf-8") as f:
+#         f.write(content)
 
-    repo_path = os.path.dirname(path)
-    #repo = Repo(path, search_parent_directories=True)
-    repo = Repo(repo_path)
-    log(f"repo: {repo}")
+#     repo_path = os.path.dirname(path)
+#     #repo = Repo(path, search_parent_directories=True)
+#     repo = Repo(repo_path)
+#     log(f"repo: {repo}")
 
-    repo.git.add(A=True)
-    repo.index.commit("Update desde web")
+#     repo.git.add(A=True)
+#     repo.index.commit("Update desde web")
 
-    # 🔥 AGREGAR ESTO:
-    origin = repo.remote(name="origin")
-    origin.push()
+#     # 🔥 AGREGAR ESTO:
+#     origin = repo.remote(name="origin")
+#     origin.push()
 
-    return jsonify({"status": "guardado y subido"})
+#     return jsonify({"status": "guardado y subido"})
 
 # @app.route("/save", methods=["POST"])
 # def save_file():
@@ -190,6 +191,72 @@ def save_file():
 #     except Exception as e:
 #         print("ERROR SAVE:", e)
 #         return jsonify({"error": str(e), "logs": logs}), 500
+
+@app.route("/save", methods=["POST"])
+def save_file():
+    try:
+        import os
+        from git import Repo
+
+        data = request.json
+        path = data["path"]
+        content = data["content"]
+
+        # 🔧 Normalizar path (clave para Render/Linux)
+        path = os.path.normpath(path).replace("\\", "/")
+
+        log(f"path recibido: {path}")
+
+        # 💾 Guardar archivo
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(content)
+
+        # 🔥 Detectar repo correctamente (raíz o subcarpeta)
+        repo = Repo(path, search_parent_directories=True)
+        log(f"repo root: {repo.working_tree_dir}")
+
+        # 📌 Agregar SOLO el archivo modificado
+        repo.git.add(path)
+
+        # 🧠 Evitar commit vacío
+        if repo.is_dirty(untracked_files=True):
+            repo.index.commit(f"Update {os.path.basename(path)}")
+            log("commit realizado")
+
+            # 🔐 Autenticación para push
+            token = os.getenv("GITHUB_TOKEN")
+            username = os.getenv("GITHUB_USERNAME")
+
+            origin = repo.remote(name="origin")
+            url = origin.url
+
+            # limpiar posibles errores de URL
+            url = url.replace(".git/", ".git")
+
+            url_auth = url.replace(
+                "https://",
+                f"https://{username}:{token}@"
+            )
+
+            origin.set_url(url_auth)
+
+            # 🚀 Push
+            origin.push()
+            log("push realizado")
+
+        else:
+            log("no hay cambios para commitear")
+
+        return jsonify({
+            "status": "guardado y subido"
+        })
+
+    except Exception as e:
+        log(f"ERROR: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "error": str(e)
+        }), 500
     
 logs_global = []
 
