@@ -31,15 +31,6 @@ textarea {
 }
 
 #tree {
-  /* background: #252526; */
-  /* background: #017070; */
-  /* padding: 10px; */
-  /* width: 300px; */
-  /* width: 50%; */
-  /* max-height: 350px; */
-  /* height: 400px; */
-  /* overflow: auto; */
-  /* overflow-y: auto; */
   margin: 5px 0;
 }
 
@@ -58,11 +49,7 @@ textarea {
 }
 
 #repos {
-  /* width: 50%; */
-  /* background: #017070; */
   margin: 5px 0;
-  /* max-height: 350px; */
-  /* overflow-y: auto; */
 }
 #repos li {
   text-decoration: underline;
