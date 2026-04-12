@@ -145,6 +145,6 @@ setInterval(async () => {
   const res = await fetch(`${API}/logs`);
   const logs = await res.json();
 
-  console.clear();
+  //console.clear();
   logs.forEach((l) => console.log(l));
 }, 5000);
