@@ -15,6 +15,7 @@ textarea {
   width: 80%;
   margin: auto;
   background: #017070;
+  margin-bottom: 5px;
 }
 
 .TreeContainer {
@@ -31,14 +32,14 @@ textarea {
 
 #tree {
   /* background: #252526; */
-  background: #017070;
+  /* background: #017070; */
   /* padding: 10px; */
   /* width: 300px; */
-  width: 50%;
-  max-height: 350px;
+  /* width: 50%; */
+  /* max-height: 350px; */
   /* height: 400px; */
   /* overflow: auto; */
-  overflow-y: auto;
+  /* overflow-y: auto; */
   margin: 5px 0;
 }
 
@@ -57,14 +58,29 @@ textarea {
 }
 
 #repos {
-  width: 50%;
-  background: #017070;
+  /* width: 50%; */
+  /* background: #017070; */
   margin: 5px 0;
-  max-height: 350px;
-  overflow-y: auto;
+  /* max-height: 350px; */
+  /* overflow-y: auto; */
 }
 #repos li {
   text-decoration: underline;
   cursor: pointer;
   margin-bottom: 5px;
+  color: #4fc1ff;
+}
+
+.contenedor-scroll {
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* border: 1px solid #444; */
+  padding: 8px;
+}
+
+.repos,
+.tree {
+  width: 50%;
+  background: #017070;
 }

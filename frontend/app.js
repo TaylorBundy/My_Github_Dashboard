@@ -2,27 +2,21 @@ let token = "";
 let archivoActual = "";
 const nombreArchivo = document.querySelector("#NombreArchivo");
 const API = "https://my-github-dashboard.onrender.com";
+let elNombre = "";
 
 async function cargarRepos() {
   // token = document.getElementById("token").value;
   const res = await fetch(`${API}/repos`);
 
-  // const res = await fetch("http://localhost:5000/repos", {
-  //   headers: {
-  //     // Authorization: "token " + token,
-  //     Authorization: "Bearer " + token,
-  //   },
-  // });
-
   const repos = await res.json();
-  //console.log(repos);
 
   const lista = document.getElementById("repos");
   lista.innerHTML = "";
 
   repos.forEach((r) => {
     const li = document.createElement("li");
-    li.textContent = r.name;
+    li.textContent = r.name + "➡️";
+    li.title = `Presione para mostrar contenido de: ${r.name}`;
     //li.onclick = () => clonarRepo(r);
     li.onclick = async () => {
       //cargarRepos();
@@ -51,7 +45,8 @@ async function cargarArchivos(repo) {
   const files = await res.json();
 
   archivoActual = files[0];
-  const elNombre = archivoActual.split("\\")[1];
+  //elNombre = archivoActual.split("\\")[1];
+  elNombre = archivoActual.split("/")[2];
 
   const contenido = await fetch(`${API}/file?path=${archivoActual}`);
   document.getElementById("editor").value = await contenido.text();
@@ -60,16 +55,6 @@ async function cargarArchivos(repo) {
 
 async function guardar() {
   const contenido = document.getElementById("editor").value;
-  //console.log(archivoActual);
-
-  // await fetch(`${API}/save`, {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify({
-  //     path: archivoActual,
-  //     content: contenido,
-  //   }),
-  // });
   const res = await fetch(`${API}/save`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -80,8 +65,6 @@ async function guardar() {
   });
   const data = await res.json();
 
-  console.log("LOG BACKEND:");
-  console.log(data);
   data.logs.forEach((l) => console.log(l));
 
   alert("Guardado");
@@ -101,10 +84,10 @@ function renderTree(nodes, container) {
   nodes.forEach((node) => {
     const div = document.createElement("div");
     div.classList.add("tree-item");
-    //console.log(node.name);
 
     if (node.type === "folder") {
       div.textContent = "📁 " + node.name;
+      div.title = `Presione para mostrar el contenido de: ${node.name}`;
       div.classList.add("folder");
 
       const childrenContainer = document.createElement("div");
@@ -124,6 +107,7 @@ function renderTree(nodes, container) {
 
     if (node.type === "file") {
       div.textContent = "📄 " + node.name;
+      div.title = `Presione para editar el archivo: ${node.name}`;
       div.classList.add("file");
 
       div.onclick = async () => {
