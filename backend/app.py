@@ -157,7 +157,7 @@ def save_file():
         logs.append(GITHUB_USERNAME)
 
         repo = Repo(path, search_parent_directories=True)
-        logs.append(repo)
+        log(f"repos: {repo}")
 
         if repo.is_dirty(untracked_files=True):
             repo.git.add(A=True)
