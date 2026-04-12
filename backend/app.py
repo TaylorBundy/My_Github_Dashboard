@@ -131,6 +131,7 @@ def save_file():
     repo_path = os.path.dirname(path)
     #repo = Repo(path, search_parent_directories=True)
     repo = Repo(repo_path)
+    log(f"repo: {repo}")
 
     repo.git.add(A=True)
     repo.index.commit("Update desde web")
