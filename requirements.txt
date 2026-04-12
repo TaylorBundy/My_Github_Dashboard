@@ -2,4 +2,3 @@ flask
 requests
 gitpython
 flask-cors
-flask
