@@ -154,6 +154,7 @@ def save_file():
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
         logs.append("Archivo guardado")
+        logs.append(GITHUB_USERNAME)
 
         repo = Repo(path, search_parent_directories=True)
 
