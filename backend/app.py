@@ -156,7 +156,8 @@ def save_file():
         logs.append("Archivo guardado")
         logs.append(GITHUB_USERNAME)
 
-        repo = Repo(path, search_parent_directories=True)
+        #repo = Repo(path, search_parent_directories=True)
+        repo = Repo(os.path.dirname(path))
         log(f"repos: {repo}")
 
         if repo.is_dirty(untracked_files=True):
