@@ -147,14 +147,14 @@ def save_file():
     try:
         data = request.json
         path = data["path"]
-        print(path)
+        #print(path)
         content = data["content"]
         log(f"Path recibido: {path}")
 
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
-        logs.append("Archivo guardado")
-        logs.append(GITHUB_USERNAME)
+        #logs.append("Archivo guardado")
+        #logs.append(GITHUB_USERNAME)
 
         #repo = Repo(path, search_parent_directories=True)
         repo = Repo(os.path.dirname(path))
@@ -163,7 +163,7 @@ def save_file():
         if repo.is_dirty(untracked_files=True):
             repo.git.add(A=True)
             repo.index.commit("Update desde web")
-            logs.append("Commit realizado")
+            #logs.append("Commit realizado")
 
             #import os
             token = os.getenv("GITHUB_TOKEN")
@@ -179,11 +179,12 @@ def save_file():
             )
 
             origin.set_url(url_auth)
+            log(f"url: {url_auth}")
             origin.push()
-            logs.append("Push realizado")
+            #logs.append("Push realizado")
 
         return jsonify({"status": "ok",
-                        "logs": logs})
+                        "logs": log})
 
     except Exception as e:
         print("ERROR SAVE:", e)
