@@ -168,6 +168,7 @@ def save_file():
             origin = repo.remote(name="origin")
 
             url = origin.url
+            url = url.replace(".git/", ".git")
             # url_auth = url.replace("https://", f"https://{GITHUB_TOKEN}@")
             url_auth = url.replace(
                 "https://",
