@@ -118,30 +118,65 @@ def read_file():
 
 #     return jsonify({"status": "guardado"})
 
+# @app.route("/save", methods=["POST"])
+# def save_file():
+#     data = request.json
+#     path = data["path"]
+#     content = data["content"]
+
+#     with open(path, "w", encoding="utf-8") as f:
+#         f.write(content)
+
+#     #repo_path = os.path.dirname(path)
+#     repo = Repo(path, search_parent_directories=True)
+#     #repo = Repo(repo_path)
+
+#     repo.git.add(A=True)
+#     repo.index.commit("Update desde web")
+
+#     # 🔥 AGREGAR ESTO:
+#     origin = repo.remote(name="origin")
+#     origin.push()
+
+#     return jsonify({"status": "guardado y subido"})
+
 @app.route("/save", methods=["POST"])
 def save_file():
-    data = request.json
-    path = data["path"]
-    content = data["content"]
+    try:
+        data = request.json
+        path = data["path"]
+        print(path)
+        content = data["content"]
 
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(content)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(content)
 
-    repo_path = os.path.dirname(path)
-    repo = Repo(repo_path)
+        repo = Repo(path, search_parent_directories=True)
 
-    repo.git.add(A=True)
-    repo.index.commit("Update desde web")
+        if repo.is_dirty(untracked_files=True):
+            repo.git.add(A=True)
+            repo.index.commit("Update desde web")
 
-    # 🔥 AGREGAR ESTO:
-    origin = repo.remote(name="origin")
-    origin.push()
+            import os
+            token = os.getenv("GITHUB_TOKEN")
 
-    return jsonify({"status": "guardado y subido"})
+            origin = repo.remote(name="origin")
+
+            url = origin.url
+            url_auth = url.replace("https://", f"https://{token}@")
+
+            origin.set_url(url_auth)
+            origin.push()
+
+        return jsonify({"status": "ok"})
+
+    except Exception as e:
+        print("ERROR SAVE:", e)
+        return jsonify({"error": str(e)}), 500
 
 #app.run(debug=True)
 
 #app.run(host="0.0.0.0", #port=int(os.environ.get("PORT", 5000)))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", debug=True, port=int(os.environ.get("PORT", 5000)))
