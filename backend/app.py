@@ -142,20 +142,24 @@ def read_file():
 
 @app.route("/save", methods=["POST"])
 def save_file():
+    logs = []
     try:
         data = request.json
         path = data["path"]
         print(path)
         content = data["content"]
+        log(f"Path recibido: {path}")
 
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
+        logs.append("Archivo guardado")
 
         repo = Repo(path, search_parent_directories=True)
 
         if repo.is_dirty(untracked_files=True):
             repo.git.add(A=True)
             repo.index.commit("Update desde web")
+            logs.append("Commit realizado")
 
             import os
             token = os.getenv("GITHUB_TOKEN")
@@ -163,16 +167,28 @@ def save_file():
             origin = repo.remote(name="origin")
 
             url = origin.url
-            url_auth = url.replace("https://", f"https://{token}@")
+            url_auth = url.replace("https://", f"https://{GITHUB_TOKEN}@")
 
             origin.set_url(url_auth)
             origin.push()
+            logs.append("Push realizado")
 
-        return jsonify({"status": "ok"})
+        return jsonify({"status": "ok",
+                        "logs": logs})
 
     except Exception as e:
         print("ERROR SAVE:", e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e), "logs": logs}), 500
+    
+logs_global = []
+
+def log(msg):
+    print(msg)
+    logs_global.append(msg)
+
+@app.route("/logs")
+def get_logs():
+    return jsonify(logs_global)
 
 #app.run(debug=True)
 

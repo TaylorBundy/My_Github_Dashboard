@@ -15,7 +15,7 @@ async function cargarRepos() {
   // });
 
   const repos = await res.json();
-  console.log(repos);
+  //console.log(repos);
 
   const lista = document.getElementById("repos");
   lista.innerHTML = "";
@@ -60,9 +60,17 @@ async function cargarArchivos(repo) {
 
 async function guardar() {
   const contenido = document.getElementById("editor").value;
-  console.log(archivoActual);
+  //console.log(archivoActual);
 
-  await fetch(`${API}/save`, {
+  // await fetch(`${API}/save`, {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify({
+  //     path: archivoActual,
+  //     content: contenido,
+  //   }),
+  // });
+  const res = await fetch(`${API}/save`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -70,6 +78,11 @@ async function guardar() {
       content: contenido,
     }),
   });
+  const data = await res.json();
+
+  console.log("LOG BACKEND:");
+  console.log(data);
+  data.logs.forEach((l) => console.log(l));
 
   alert("Guardado");
 }
@@ -127,3 +140,11 @@ function renderTree(nodes, container) {
     }
   });
 }
+
+setInterval(async () => {
+  const res = await fetch(`${API}/logs`);
+  const logs = await res.json();
+
+  console.clear();
+  logs.forEach((l) => console.log(l));
+}, 5000);
