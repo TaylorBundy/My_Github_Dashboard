@@ -195,8 +195,8 @@ def read_file():
 @app.route("/save", methods=["POST"])
 def save_file():
     try:
-        import os
-        from git import Repo
+        #import os
+        #from git import Repo
 
         data = request.json
         path = data["path"]
@@ -216,7 +216,8 @@ def save_file():
         log(f"repo root: {repo.working_tree_dir}")
 
         # 📌 Agregar SOLO el archivo modificado
-        repo.git.add(path)
+        #repo.git.add(path)
+        repo.git.add(A=True)
 
         # 🧠 Evitar commit vacío
         if repo.is_dirty(untracked_files=True):
