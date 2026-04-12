@@ -1,7 +1,7 @@
 let token = "";
 let archivoActual = "";
 const nombreArchivo = document.querySelector("#NombreArchivo");
-const API = "https://my-github-dashboard.onrender.com"
+const API = "https://my-github-dashboard.onrender.com";
 
 async function cargarRepos() {
   // token = document.getElementById("token").value;
@@ -15,6 +15,7 @@ async function cargarRepos() {
   // });
 
   const repos = await res.json();
+  console.log(repos);
 
   const lista = document.getElementById("repos");
   lista.innerHTML = "";
@@ -24,7 +25,7 @@ async function cargarRepos() {
     li.textContent = r.name;
     //li.onclick = () => clonarRepo(r);
     li.onclick = async () => {
-      cargarRepos();
+      //cargarRepos();
       await clonarRepo(r);
       cargarArbol(r.name);
     };
@@ -52,15 +53,14 @@ async function cargarArchivos(repo) {
   archivoActual = files[0];
   const elNombre = archivoActual.split("\\")[1];
 
-  const contenido = await fetch(
-    `${API}/file?path=${archivoActual}`,
-  );
+  const contenido = await fetch(`${API}/file?path=${archivoActual}`);
   document.getElementById("editor").value = await contenido.text();
   nombreArchivo.textContent = elNombre;
 }
 
 async function guardar() {
   const contenido = document.getElementById("editor").value;
+  console.log(archivoActual);
 
   await fetch(`${API}/save`, {
     method: "POST",

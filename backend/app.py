@@ -39,9 +39,14 @@ def clone_repo():
     name = data["name"]
 
     path = f"repos/{name}"
+    url_auth = url.replace(
+        "https://",
+        f"https://{GITHUB_TOKEN}@"
+    )
 
     if not os.path.exists(path):
-        Repo.clone_from(url, path)
+        Repo.clone_from(url_auth, path)
+        # Repo.clone_from(url, path)
 
     return jsonify({"status": "clonado"})
 
@@ -97,6 +102,22 @@ def read_file():
         return f.read()
 
 
+# @app.route("/save2", methods=["POST"])
+# def save_file():
+#     data = request.json
+#     path = data["path"]
+#     content = data["content"]
+#     print(content)
+
+#     with open(path, "w", encoding="utf-8") as f:
+#         f.write(content)
+
+#     repo = Repo(os.path.dirname(path))
+#     repo.git.add(A=True)
+#     repo.index.commit("Update desde web")
+
+#     return jsonify({"status": "guardado"})
+
 @app.route("/save", methods=["POST"])
 def save_file():
     data = request.json
@@ -106,12 +127,17 @@ def save_file():
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
 
-    repo = Repo(os.path.dirname(path))
+    repo_path = os.path.dirname(path)
+    repo = Repo(repo_path)
+
     repo.git.add(A=True)
     repo.index.commit("Update desde web")
 
-    return jsonify({"status": "guardado"})
+    # 🔥 AGREGAR ESTO:
+    origin = repo.remote(name="origin")
+    origin.push()
 
+    return jsonify({"status": "guardado y subido"})
 
 #app.run(debug=True)
 
