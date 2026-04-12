@@ -14,6 +14,7 @@ GITHUB_API = "https://api.github.com"
 #GITHUB_TOKEN = "token"
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_USERNAME = os.getenv("GITHUB_USERNAME")
 
 @app.route("/repos")
 def get_repos():
@@ -167,7 +168,11 @@ def save_file():
             origin = repo.remote(name="origin")
 
             url = origin.url
-            url_auth = url.replace("https://", f"https://{GITHUB_TOKEN}@")
+            # url_auth = url.replace("https://", f"https://{GITHUB_TOKEN}@")
+            url_auth = url.replace(
+                "https://",
+                f"https://{GITHUB_USERNAME}:{GITHUB_TOKEN}@"
+            )
 
             origin.set_url(url_auth)
             origin.push()
