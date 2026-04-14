@@ -118,7 +118,8 @@ def get_pages():
     repo = request.args.get("repo")  # ej: "usuario/repo"
     owner, repo_name = repo.split("/")
 
-    url = f"https://api.github.com/repos/{owner}/{repo_name}/pages"
+    # url = f"https://api.github.com/repos/{owner}/{repo_name}/pages"
+    url = f"{GITHUB_API}/user/repos/{repo}/pages"
 
     headers = {}
     if GITHUB_TOKEN:
