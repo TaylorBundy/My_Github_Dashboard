@@ -22,11 +22,11 @@ CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET2")
 def login():
     cuenta = request.args.get("cuenta")
     cuentas = {
-        "client_id1": {
-            "client_id": os.getenv("CLIENT_ID_1"),
+        "CLIENT_ID1": {
+            "client_id": os.getenv("GITHUB_CLIENT_ID1"),
         },
-        "client_id2": {
-            "client_id": os.getenv("CLIENT_ID_2"),
+        "CLIENT_ID2": {
+            "client_id": os.getenv("GITHUB_CLIENT_ID2"),
         }
     }
     config = cuentas.get(cuenta)
