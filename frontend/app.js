@@ -133,6 +133,13 @@ setInterval(async () => {
   logs.forEach((l) => console.log(l));
 }, 5000);
 
-function login() {
+function login2() {
   window.location.href = "https://my-github-dashboard.onrender.com/login";
+}
+
+function login() {
+  const cuenta = document.getElementById("cuenta").value;
+  console.log(cuenta);
+
+  window.location.href = `https://my-github-dashboard.onrender.com/login?cuenta=${cuenta}`;
 }
