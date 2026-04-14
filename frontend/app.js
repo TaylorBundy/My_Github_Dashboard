@@ -95,6 +95,7 @@ async function cargarArbol(repo) {
     ]);
 
     const treeData = await treeRes.json();
+    console.log(treeData);
     const pagesData = await pagesRes.json();
 
     // 🌳 renderizar archivos
@@ -102,11 +103,17 @@ async function cargarArbol(repo) {
     renderTree(treeData, tree);
 
     // 🌐 mostrar github pages
+    // if (pagesData.url) {
+    //   iframe.src = pagesData.url;
+    // } else {
+    //   iframe.src = "";
+    //   iframe.outerHTML = "<p>Este repositorio no tiene GitHub Pages</p>";
+    // }
     if (pagesData.url) {
       iframe.src = pagesData.url;
+      document.getElementById("pagesLink").href = pagesData.url;
     } else {
       iframe.src = "";
-      iframe.outerHTML = "<p>Este repositorio no tiene GitHub Pages</p>";
     }
   } catch (err) {
     console.error(err);
