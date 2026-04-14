@@ -142,13 +142,35 @@ async function cargarArbol(repo) {
   // obtenerRepo("taylorbundy", "My_Github_Dashboard").then((data) =>
   //   console.log(data),
   // );
-  // obtenerTodo("taylorbundy", "My_Github_Dashboard").then((data) =>
-  //   console.log(data),
-  // );
-  //buscarArchivo("taylorbundy", repo, "index.html").then(console.log);
-  buscarArchivo("taylorbundy", repo, "index.html").then((data) => {
-    console.log(data);
+
+  // obtenerTodo("taylorbundy", repo).then((data) => {
+  //   const contenido = data.contenido;
+  //   contenido.forEach((conte) => {
+  //     console.log(conte);
+  //   });
+  //   //console.log(data);
+  // });
+
+  // buscarIndexRapido("taylorbundy", repo).then((res) => {
+  //   console.log("Encontrados:", res);
+  // });
+
+  detectarGitHubPages("taylorbundy", repo).then((res) => {
+    console.log("Encontrados:", res);
   });
+
+  //buscarArchivo("taylorbundy", repo, "index.html").then(console.log);
+  // buscarArchivo("taylorbundy", repo, "index.html").then((data) => {
+  //   console.log(data);
+  // });
+
+  // async function test() {
+  //   const resultado = await buscarArchivo("TaylorBundy", repo, "index.html");
+
+  //   console.log(resultado);
+  // }
+
+  // test();
 
   // 🌳 TREE (siempre intentar mostrarlo)
   if (treeRes.status === "fulfilled") {
@@ -325,7 +347,7 @@ async function obtenerTodo(owner, repo) {
     ),
   ]);
 
-  return { info, ramas, commits, contenido, paginas };
+  return { contenido };
 }
 // Uso
 async function buscarPorNombre(owner, repo, archivo) {
@@ -340,6 +362,84 @@ async function buscarArchivo(owner, repo, archivo) {
   const res = await fetch(
     `${API}/buscar?owner=${owner}&repo=${repo}&archivo=${archivo}`,
   );
-  console.log(await res.json());
+  const datos = await res.json();
+  console.log(datos);
+  //return await res.json();
+  return datos;
+}
+
+async function buscarIndex(owner, repo, path = "") {
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+  console.log(data);
+
+  let resultados = [];
+
+  for (const item of data) {
+    // 📄 Si es archivo
+    if (item.type === "file" && item.name.toLowerCase() === "index.html") {
+      resultados.push({
+        path: item.path,
+        url: item.html_url,
+      });
+    }
+
+    // 📁 Si es carpeta → recursion
+    if (item.type === "dir") {
+      const subResultados = await buscarIndex(owner, repo, item.path);
+      resultados = resultados.concat(subResultados);
+    }
+  }
+
+  return resultados;
+}
+async function buscarIndexRapido(owner, repo) {
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`,
+  );
+
+  const data = await res.json();
+
+  return data.tree
+    .filter((item) => item.path.toLowerCase().endsWith("index.html"))
+    .map((item) => ({
+      path: item.path,
+      url: `https://github.com/${owner}/${repo}/blob/main/${item.path}`,
+    }));
+}
+
+async function obtenerPages(owner, repo) {
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/pages`,
+  );
+
+  if (!res.ok) return null;
+
   return await res.json();
+}
+
+async function detectarGitHubPages(owner, repo) {
+  const pages = await obtenerPages(owner, repo);
+  if (!pages) return null;
+
+  const branch = pages.source.branch;
+  const basePath = pages.source.path || "";
+
+  const tree = await obtenerTree(owner, repo, branch);
+
+  const index = buscarIndex(tree, basePath);
+  if (!index) return null;
+
+  const url = construirURL(owner, repo, index.path);
+
+  const ok = await validarURL(url);
+
+  return {
+    configurada: true,
+    url,
+    funcional: ok,
+    path: index.path,
+  };
 }

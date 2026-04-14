@@ -20,6 +20,16 @@ GITHUB_USERNAME = os.getenv("GITHUB_USERNAME")
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID2")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET2")
 
+def buscar_index(owner, repo):
+    url = f"{GITHUB_API}/repos/{owner}/{repo}/git/trees/HEAD?recursive=1"
+    res = requests.get(url).json()
+
+    for item in res.get("tree", []):
+        if item["path"].endswith("index.html"):
+            return item["path"]
+
+    return None
+
 @app.route("/login")
 def login():
     cuenta = request.args.get("cuenta")
@@ -145,25 +155,49 @@ def check_url():
     except:
         return {"ok": False}
     
+# @app.route("/check_pages")
+# def check_pages():
+#     url = request.args.get("url")
+
+#     posibles = [
+#         url,
+#         url + "index.html",
+#         url + "frontend/index.html"
+#     ]
+
+#     for u in posibles:
+#         try:
+#             r = requests.get(u, timeout=5)
+#             if r.status_code == 200:
+#                 return {"ok": True, "url": u}
+#         except:
+#             continue
+
+#     return {"ok": False, "url": None}
+
 @app.route("/check_pages")
 def check_pages():
-    url = request.args.get("url")
+    base_url = request.args.get("url")
 
-    posibles = [
-        url,
-        url + "index.html",
-        url + "frontend/index.html"
-    ]
+    # 1. probar raíz
+    r = requests.get(base_url)
+    if r.status_code == 200:
+        return {"ok": True, "url": base_url}
 
-    for u in posibles:
-        try:
-            r = requests.get(u, timeout=5)
-            if r.status_code == 200:
-                return {"ok": True, "url": u}
-        except:
-            continue
+    # 2. extraer owner/repo desde la URL
+    # ejemplo: https://taylorbundy.github.io/My_Github_Dashboard/
+    parts = base_url.replace("https://", "").split("/")
+    owner = parts[0].split(".")[0]
+    repo = parts[1] if len(parts) > 1 else ""
 
-    return {"ok": False, "url": None}
+    # 3. buscar index.html en el repo
+    path = buscar_index(owner, repo)
+
+    if path:
+        nueva_url = base_url.rstrip("/") + "/" + path
+        return {"ok": True, "url": nueva_url}
+
+    return {"ok": False}
 
 @app.route("/tree")
 def get_tree():
