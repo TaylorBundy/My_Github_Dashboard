@@ -2,4 +2,7 @@ flask
 requests
 gitpython
 flask-cors
+<<<<<<< HEAD
 python-dotenv
+=======
+>>>>>>> 7e3b713a1b9fd99efead12dbd4cde2fc70ed6413
