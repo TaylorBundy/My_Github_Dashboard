@@ -132,3 +132,7 @@ setInterval(async () => {
   //console.clear();
   logs.forEach((l) => console.log(l));
 }, 5000);
+
+function login() {
+  window.location.href = "http://localhost:5000/login";
+}

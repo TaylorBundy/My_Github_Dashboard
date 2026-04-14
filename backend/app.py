@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session, redirect
 import requests
 import os
 from git import Repo
@@ -15,6 +15,36 @@ GITHUB_API = "https://api.github.com"
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_USERNAME = os.getenv("GITHUB_USERNAME")
+CLIENT_ID = os.getenv("GITHUB_CLIENT_ID2")
+CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET2")
+
+@app.route("/login")
+def login():
+    return redirect(
+        f"https://github.com/login/oauth/authorize?client_id={CLIENT_ID}&scope=repo"
+    )
+
+@app.route("/callback")
+def callback():
+    code = request.args.get("code")
+
+    # Intercambiar code por token
+    res = requests.post(
+        "https://github.com/login/oauth/access_token",
+        headers={"Accept": "application/json"},
+        data={
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+            "code": code
+        }
+    )
+
+    access_token = res.json().get("access_token")
+
+    # Guardar en sesión
+    session["token"] = access_token
+
+    return redirect("http://localhost:8000")  # tu frontend
 
 @app.route("/repos")
 def get_repos():
