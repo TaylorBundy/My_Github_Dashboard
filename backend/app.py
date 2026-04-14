@@ -4,7 +4,9 @@ import os
 from git import Repo
 # from flask import Flask, request, jsonify
 from flask_cors import CORS  # 👈 IMPORTANTE
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 CORS(app)  # 👈 ESTO SOLUCIONA TODO
 
@@ -123,14 +125,45 @@ def get_pages():
 
     headers = {}
     if GITHUB_TOKEN:
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+        headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
 
-    r = requests.get(url, headers=headers)
+    # r = requests.get(url, headers=headers)
+    r = requests.get(f"{GITHUB_API}/user/repos", headers=headers)
 
     if r.status_code == 200:
         return {"url": r.json()["html_url"]}
     else:
         return {"url": None}
+
+@app.route("/check_url")
+def check_url():
+    url = request.args.get("url")
+
+    try:
+        r = requests.head(url, allow_redirects=True, timeout=5)
+        return {"ok": r.status_code < 400}
+    except:
+        return {"ok": False}
+    
+@app.route("/check_pages")
+def check_pages():
+    url = request.args.get("url")
+
+    posibles = [
+        url,
+        url + "index.html",
+        url + "frontend/index.html"
+    ]
+
+    for u in posibles:
+        try:
+            r = requests.get(u, timeout=5)
+            if r.status_code == 200:
+                return {"ok": True, "url": u}
+        except:
+            continue
+
+    return {"ok": False, "url": None}
 
 @app.route("/tree")
 def get_tree():
@@ -161,6 +194,43 @@ def read_file():
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
+@app.route("/buscar", methods=["GET"])
+def buscar_archivo():
+    owner = request.args.get("owner")
+    repo = request.args.get("repo")
+    archivo = request.args.get("archivo")
+
+    if not owner or not repo or not archivo:
+        return jsonify({"error": "Faltan parámetros"}), 400
+
+    url = f"https://api.github.com/search/code?q={archivo}+repo:{owner}/{repo}"
+
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        return jsonify({
+            "error": "Error en GitHub API",
+            "detalle": response.json()
+        }), response.status_code
+
+    data = response.json()
+
+    # devolver solo lo útil
+    resultados = [
+        {
+            "nombre": item["name"],
+            "path": item["path"],
+            "url": item["html_url"]
+        }
+        for item in data.get("items", [])
+    ]
+
+    return jsonify(resultados)
 
 # @app.route("/save2", methods=["POST"])
 # def save_file():

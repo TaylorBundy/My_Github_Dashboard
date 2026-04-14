@@ -80,7 +80,7 @@ async function cargarArbol2(repo) {
   renderTree(data, tree);
 }
 
-async function cargarArbol(repo) {
+async function cargarArbol3(repo) {
   const tree = document.getElementById("tree");
   const iframe = document.getElementById("repoPage");
 
@@ -89,13 +89,15 @@ async function cargarArbol(repo) {
 
   try {
     // 👇 ejecuta ambas cosas al mismo tiempo
-    const [treeRes, pagesRes] = await Promise.all([
-      fetch(`${API}/tree?repo=${repo}`),
-      fetch(`${API}/pages?repo=${repo}`),
-    ]);
+    // const [treeRes, pagesRes] = await Promise.all([
+    //   fetch(`${API}/tree?repo=${repo}`),
+    //   fetch(`${API}/pages?repo=${repo}`),
+    // ]);
+    const treeRes = await fetch(`${API}/tree?repo=${repo}`);
 
     const treeData = await treeRes.json();
     console.log(treeData);
+    const pagesRes = await fetch(`${API}/pages?repo=${repo}`);
     const pagesData = await pagesRes.json();
 
     // 🌳 renderizar archivos
@@ -117,7 +119,73 @@ async function cargarArbol(repo) {
     }
   } catch (err) {
     console.error(err);
+    //tree.innerHTML = "Error cargando repositorio";
+  }
+}
+
+async function cargarArbol(repo) {
+  const tree = document.getElementById("tree");
+  //const iframe = document.getElementById("repoPage");
+  //console.log(repo);
+
+  tree.innerHTML = "Cargando...";
+  //iframe.src = "";
+
+  const [treeRes, pagesRes, info] = await Promise.allSettled([
+    fetch(`${API}/tree?repo=${repo}`),
+    //fetch(`https://api.github.com/repos/TaylorBundy`),
+    //fetch(`${API}/pages?repo=${repo}`),
+  ]);
+  //console.log(pagesRes.status);
+  //const infor = await treeRes.value.json();
+  //console.log(infor);
+  // obtenerRepo("taylorbundy", "My_Github_Dashboard").then((data) =>
+  //   console.log(data),
+  // );
+  // obtenerTodo("taylorbundy", "My_Github_Dashboard").then((data) =>
+  //   console.log(data),
+  // );
+  //buscarArchivo("taylorbundy", repo, "index.html").then(console.log);
+  buscarArchivo("taylorbundy", repo, "index.html").then((data) => {
+    console.log(data);
+  });
+
+  // 🌳 TREE (siempre intentar mostrarlo)
+  if (treeRes.status === "fulfilled") {
+    try {
+      const treeData = await treeRes.value.json();
+      tree.innerHTML = "";
+      renderTree(treeData, tree);
+    } catch (e) {
+      tree.innerHTML = "Error procesando archivos";
+    }
+  } else {
     tree.innerHTML = "Error cargando repositorio";
+  }
+
+  // 🌐 PAGES (opcional)
+  if (treeRes.status === "fulfilled") {
+    try {
+      //const pagesData = await pagesRes.value.json();
+      const enlace = `https://TaylorBundy.github.io/${repo}/index.html`;
+      if (validator.isURL(enlace)) {
+        console.log("existe");
+      }
+      //const existe = await urlExiste(enlace);
+      const result = await obtenerPaginaValida(enlace);
+      //console.log(isValidUrl(enlace)); // true
+      //console.log(isValidUrl("invalid-url")); // false
+      console.log(result);
+
+      //if (pagesData.url) {
+      // iframe.src = enlace;
+      document.getElementById("pagesLink").href = enlace;
+      //}
+    } catch (e) {
+      console.warn("No se pudo procesar GitHub Pages");
+    }
+  } else {
+    console.warn("No se pudo obtener GitHub Pages");
   }
 }
 
@@ -183,4 +251,95 @@ function login() {
   console.log(cuenta);
 
   window.location.href = `https://my-github-dashboard.onrender.com/login?cuenta=${cuenta}`;
+}
+
+async function urlExiste2(url) {
+  try {
+    console.log(url);
+    //const res = await fetch(`${API}/check_url?url=${encodeURIComponent(url)}`);
+    const res = await fetch(`${API}/check_url?url=${url}`);
+    const data = await res.json();
+    return data.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function urlExiste(url) {
+  try {
+    const res = await fetch(url, {
+      method: "HEAD",
+      mode: "no-cors",
+    });
+
+    // En no-cors no podés ver status → asumimos que respondió
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+async function obtenerPaginaValida(baseUrl) {
+  try {
+    const res = await fetch(
+      `${API}/check_pages?url=${encodeURIComponent(baseUrl)}`,
+    );
+    const data = await res.json();
+
+    return data;
+  } catch {
+    return { ok: false };
+  }
+}
+
+async function obtenerRepo(owner, repo) {
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+  const data = await res.json();
+  return data;
+}
+async function obtenerTodo(owner, repo) {
+  const [info, ramas, commits, contenido, paginas] = await Promise.all([
+    fetch(`https://api.github.com/repos/${owner}/${repo}`).then((r) =>
+      r.json(),
+    ),
+    fetch(`https://api.github.com/repos/${owner}/${repo}/branches`).then((r) =>
+      r.json(),
+    ),
+    fetch(`https://api.github.com/repos/${owner}/${repo}/commits`).then((r) =>
+      r.json(),
+    ),
+    fetch(`https://api.github.com/repos/${owner}/${repo}/contents`).then((r) =>
+      r.json(),
+    ),
+    fetch(`https://api.github.com/repos/${owner}/${repo}/pages`).then((r) =>
+      r.json(),
+    ),
+  ]);
+
+  return { info, ramas, commits, contenido, paginas };
+}
+// Uso
+async function buscarPorNombre(owner, repo, archivo) {
+  const res = await fetch(
+    `https://api.github.com/search/code?q=${archivo}+repo:${owner}/${repo}`,
+  );
+  const data = await res.json();
+  return data.items;
+}
+
+async function buscarArchivo(owner, repo, archivo) {
+  const res = await fetch(
+    `${API}/buscar?owner=${owner}&repo=${repo}&archivo=${archivo}`,
+  );
+  console.log(await res.json());
+  return await res.json();
 }
