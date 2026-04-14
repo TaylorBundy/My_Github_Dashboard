@@ -113,6 +113,23 @@ def construir_arbol(directorio):
 
     return arbol
 
+@app.route("/pages")
+def get_pages():
+    repo = request.args.get("repo")  # ej: "usuario/repo"
+    owner, repo_name = repo.split("/")
+
+    url = f"https://api.github.com/repos/{owner}/{repo_name}/pages"
+
+    headers = {}
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+
+    r = requests.get(url, headers=headers)
+
+    if r.status_code == 200:
+        return {"url": r.json()["html_url"]}
+    else:
+        return {"url": None}
 
 @app.route("/tree")
 def get_tree():

@@ -70,7 +70,7 @@ async function guardar() {
   alert("Guardado");
 }
 
-async function cargarArbol(repo) {
+async function cargarArbol2(repo) {
   const res = await fetch(`${API}/tree?repo=${repo}`);
   const data = await res.json();
 
@@ -78,6 +78,40 @@ async function cargarArbol(repo) {
   tree.innerHTML = "";
 
   renderTree(data, tree);
+}
+
+async function cargarArbol(repo) {
+  const tree = document.getElementById("tree");
+  const iframe = document.getElementById("repoPage");
+
+  tree.innerHTML = "Cargando...";
+  iframe.src = ""; // limpiar
+
+  try {
+    // 👇 ejecuta ambas cosas al mismo tiempo
+    const [treeRes, pagesRes] = await Promise.all([
+      fetch(`${API}/tree?repo=${repo}`),
+      fetch(`${API}/pages?repo=${repo}`),
+    ]);
+
+    const treeData = await treeRes.json();
+    const pagesData = await pagesRes.json();
+
+    // 🌳 renderizar archivos
+    tree.innerHTML = "";
+    renderTree(treeData, tree);
+
+    // 🌐 mostrar github pages
+    if (pagesData.url) {
+      iframe.src = pagesData.url;
+    } else {
+      iframe.src = "";
+      iframe.outerHTML = "<p>Este repositorio no tiene GitHub Pages</p>";
+    }
+  } catch (err) {
+    console.error(err);
+    tree.innerHTML = "Error cargando repositorio";
+  }
 }
 
 function renderTree(nodes, container) {
