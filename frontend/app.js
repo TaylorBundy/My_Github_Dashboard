@@ -1,6 +1,7 @@
 let token = "";
 let archivoActual = "";
 const nombreArchivo = document.querySelector("#NombreArchivo");
+//const urlPagina = document.getElementById("pagesLink");
 const API = "https://my-github-dashboard.onrender.com";
 let elNombre = "";
 
@@ -155,9 +156,9 @@ async function cargarArbol(repo) {
   //   console.log("Encontrados:", res);
   // });
 
-  detectarGitHubPages("taylorbundy", repo).then((res) => {
-    console.log("Encontrados:", res);
-  });
+  // detectarGitHubPages("taylorbundy", repo).then((res) => {
+  //   console.log("Encontrados:", res);
+  // });
 
   //buscarArchivo("taylorbundy", repo, "index.html").then(console.log);
   // buscarArchivo("taylorbundy", repo, "index.html").then((data) => {
@@ -189,19 +190,22 @@ async function cargarArbol(repo) {
   if (treeRes.status === "fulfilled") {
     try {
       //const pagesData = await pagesRes.value.json();
-      const enlace = `https://TaylorBundy.github.io/${repo}/index.html`;
-      if (validator.isURL(enlace)) {
-        console.log("existe");
-      }
+      const enlace = `https://TaylorBundy.github.io/${repo}`;
+      // if (validator.isURL(enlace)) {
+      //   console.log("existe");
+      // }
       //const existe = await urlExiste(enlace);
       const result = await obtenerPaginaValida(enlace);
+      const paginaValida = result.url;
       //console.log(isValidUrl(enlace)); // true
       //console.log(isValidUrl("invalid-url")); // false
-      console.log(result);
+      console.log(result.url);
 
       //if (pagesData.url) {
       // iframe.src = enlace;
-      document.getElementById("pagesLink").href = enlace;
+      document.getElementById("pagesLink").href = paginaValida;
+      //urlPagina.href = paginaValida;
+      //urlPagina.title = `Click para visitar la pagina del repositorio:\n${paginaValida}`;
       //}
     } catch (e) {
       console.warn("No se pudo procesar GitHub Pages");
@@ -368,7 +372,7 @@ async function buscarArchivo(owner, repo, archivo) {
   return datos;
 }
 
-async function buscarIndex(owner, repo, path = "") {
+async function buscarIndex2(owner, repo, path = "") {
   const url = `https://api.github.com/repos/${owner}/${repo}/contents`;
 
   const res = await fetch(url);
@@ -418,6 +422,42 @@ async function obtenerPages(owner, repo) {
   if (!res.ok) return null;
 
   return await res.json();
+}
+
+async function obtenerTree(owner, repo, branch = "main") {
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`,
+  );
+
+  return await res.json();
+}
+
+function buscarIndex(tree, basePath = "") {
+  return tree.tree.find((item) => {
+    return (
+      item.path.toLowerCase() ===
+        `${basePath.replace(/^\//, "")}/index.html`.replace(/^\/+/, "") ||
+      item.path.toLowerCase().endsWith("/index.html")
+    );
+  });
+}
+
+function construirURL(owner, repo, path) {
+  const base = `https://${owner}.github.io/${repo}`;
+
+  // quitar index.html
+  const limpio = path.replace(/index\.html$/i, "");
+
+  return `${base}/${limpio}`;
+}
+
+async function validarURL(url) {
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 async function detectarGitHubPages(owner, repo) {
