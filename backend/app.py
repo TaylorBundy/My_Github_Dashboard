@@ -20,8 +20,19 @@ CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET2")
 
 @app.route("/login")
 def login():
+    cuenta = request.args.get("cuenta")
+    cuentas = {
+        "client_id1": {
+            "client_id": os.getenv("CLIENT_ID_1"),
+        },
+        "client_id2": {
+            "client_id": os.getenv("CLIENT_ID_2"),
+        }
+    }
+    config = cuentas.get(cuenta)
+    client_id = config["client_id"]
     return redirect(
-        f"https://github.com/login/oauth/authorize?client_id={CLIENT_ID}&scope=repo"
+        f"https://github.com/login/oauth/authorize?client_id={client_id}&scope=repo"
     )
 
 @app.route("/callback")

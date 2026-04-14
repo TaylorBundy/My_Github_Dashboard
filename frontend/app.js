@@ -134,5 +134,5 @@ setInterval(async () => {
 }, 5000);
 
 function login() {
-  window.location.href = "http://localhost:5000/login";
+  window.location.href = "https://my-github-dashboard.onrender.com/login";
 }
