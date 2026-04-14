@@ -38,6 +38,9 @@ textarea {
   cursor: pointer;
   padding-left: 10px;
   margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .folder {
@@ -56,6 +59,9 @@ textarea {
   cursor: pointer;
   margin-bottom: 5px;
   color: #4fc1ff;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .contenedor-scroll {
@@ -69,4 +75,25 @@ textarea {
 .tree {
   width: 50%;
   background: #017070;
+}
+
+.linkContainer {
+  display: flex;
+}
+#pagesLink {
+  display: none;
+  background: #ff6d00;
+  margin: auto;
+  padding: 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #fff;
+}
+
+.divNumero {
+  color: #000;
+  font-weight: bold;
+}
+.imgDiv {
+  height: 20px;
 }

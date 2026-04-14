@@ -1,11 +1,18 @@
 let token = "";
 let archivoActual = "";
 const nombreArchivo = document.querySelector("#NombreArchivo");
-//const urlPagina = document.getElementById("pagesLink");
+const urlPagina = document.getElementById("pagesLink");
 const API = "https://my-github-dashboard.onrender.com";
 let elNombre = "";
+const html = "https://cdn-icons-png.flaticon.com/128/11806/11806874.png";
+const css = "https://cdn-icons-png.flaticon.com/128/11806/11806853.png";
+const txt = "https://cdn-icons-png.flaticon.com/128/11806/11806914.png";
+const py = "https://cdn-icons-png.flaticon.com/128/9681/9681019.png";
+const js = "https://cdn-icons-png.flaticon.com/128/11180/11180507.png";
+const img = "https://cdn-icons-png.flaticon.com/512/16861/16861683.png";
+const ico = "https://cdn-icons-png.flaticon.com/128/11609/11609634.png";
 
-async function cargarRepos() {
+async function cargarRepos(prefijo = "") {
   // token = document.getElementById("token").value;
   const res = await fetch(`${API}/repos`);
 
@@ -14,16 +21,32 @@ async function cargarRepos() {
   const lista = document.getElementById("repos");
   lista.innerHTML = "";
 
-  repos.forEach((r) => {
+  repos.forEach((r, index) => {
+    const numero = prefijo === "" ? `${index + 1}. ` : "";
+    //console.log(numero);
+    const divNumero = document.createElement("div");
+    const divTexto = document.createElement("div");
+    const imgDiv = document.createElement("img");
+    divNumero.classList.add("divNumero");
+    divTexto.classList.add("divTexto");
+    imgDiv.classList.add("imgDiv");
+    imgDiv.src = "https://cdn-icons-png.flaticon.com/128/12542/12542638.png";
     const li = document.createElement("li");
-    li.textContent = r.name + "➡️";
-    li.title = `Presione para mostrar contenido de: ${r.name}`;
+    divNumero.textContent = `${numero}`;
+    //divTexto.textContent = `🔹 ${r.name} ➡️`;
+    divTexto.textContent = `${r.name}`;
+
+    //li.textContent = `${numero}🔹 ${r.name} ➡️`;
+    li.title = `Presione para mostrar contenido de:\n"${r.name}"`;
     //li.onclick = () => clonarRepo(r);
     li.onclick = async () => {
       //cargarRepos();
       await clonarRepo(r);
       cargarArbol(r.name);
     };
+    li.appendChild(divNumero);
+    li.appendChild(divTexto);
+    li.appendChild(imgDiv);
     lista.appendChild(li);
   });
 }
@@ -71,63 +94,61 @@ async function guardar() {
   alert("Guardado");
 }
 
-async function cargarArbol2(repo) {
-  const res = await fetch(`${API}/tree?repo=${repo}`);
-  const data = await res.json();
+// async function cargarArbol2(repo) {
+//   const res = await fetch(`${API}/tree?repo=${repo}`);
+//   const data = await res.json();
 
-  const tree = document.getElementById("tree");
-  tree.innerHTML = "";
+//   const tree = document.getElementById("tree");
+//   tree.innerHTML = "";
 
-  renderTree(data, tree);
-}
+//   renderTree(data, tree);
+// }
 
-async function cargarArbol3(repo) {
-  const tree = document.getElementById("tree");
-  const iframe = document.getElementById("repoPage");
+// async function cargarArbol3(repo) {
+//   const tree = document.getElementById("tree");
+//   const iframe = document.getElementById("repoPage");
 
-  tree.innerHTML = "Cargando...";
-  iframe.src = ""; // limpiar
+//   tree.innerHTML = "Cargando...";
+//   iframe.src = ""; // limpiar
 
-  try {
-    // 👇 ejecuta ambas cosas al mismo tiempo
-    // const [treeRes, pagesRes] = await Promise.all([
-    //   fetch(`${API}/tree?repo=${repo}`),
-    //   fetch(`${API}/pages?repo=${repo}`),
-    // ]);
-    const treeRes = await fetch(`${API}/tree?repo=${repo}`);
+//   try {
+//     // 👇 ejecuta ambas cosas al mismo tiempo
+//     // const [treeRes, pagesRes] = await Promise.all([
+//     //   fetch(`${API}/tree?repo=${repo}`),
+//     //   fetch(`${API}/pages?repo=${repo}`),
+//     // ]);
+//     const treeRes = await fetch(`${API}/tree?repo=${repo}`);
 
-    const treeData = await treeRes.json();
-    console.log(treeData);
-    const pagesRes = await fetch(`${API}/pages?repo=${repo}`);
-    const pagesData = await pagesRes.json();
+//     const treeData = await treeRes.json();
+//     console.log(treeData);
+//     const pagesRes = await fetch(`${API}/pages?repo=${repo}`);
+//     const pagesData = await pagesRes.json();
 
-    // 🌳 renderizar archivos
-    tree.innerHTML = "";
-    renderTree(treeData, tree);
+//     // 🌳 renderizar archivos
+//     tree.innerHTML = "";
+//     renderTree(treeData, tree);
 
-    // 🌐 mostrar github pages
-    // if (pagesData.url) {
-    //   iframe.src = pagesData.url;
-    // } else {
-    //   iframe.src = "";
-    //   iframe.outerHTML = "<p>Este repositorio no tiene GitHub Pages</p>";
-    // }
-    if (pagesData.url) {
-      iframe.src = pagesData.url;
-      document.getElementById("pagesLink").href = pagesData.url;
-    } else {
-      iframe.src = "";
-    }
-  } catch (err) {
-    console.error(err);
-    //tree.innerHTML = "Error cargando repositorio";
-  }
-}
+//     // 🌐 mostrar github pages
+//     // if (pagesData.url) {
+//     //   iframe.src = pagesData.url;
+//     // } else {
+//     //   iframe.src = "";
+//     //   iframe.outerHTML = "<p>Este repositorio no tiene GitHub Pages</p>";
+//     // }
+//     if (pagesData.url) {
+//       iframe.src = pagesData.url;
+//       document.getElementById("pagesLink").href = pagesData.url;
+//     } else {
+//       iframe.src = "";
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     //tree.innerHTML = "Error cargando repositorio";
+//   }
+// }
 
 async function cargarArbol(repo) {
   const tree = document.getElementById("tree");
-  //const iframe = document.getElementById("repoPage");
-  //console.log(repo);
 
   tree.innerHTML = "Cargando...";
   //iframe.src = "";
@@ -137,41 +158,6 @@ async function cargarArbol(repo) {
     //fetch(`https://api.github.com/repos/TaylorBundy`),
     //fetch(`${API}/pages?repo=${repo}`),
   ]);
-  //console.log(pagesRes.status);
-  //const infor = await treeRes.value.json();
-  //console.log(infor);
-  // obtenerRepo("taylorbundy", "My_Github_Dashboard").then((data) =>
-  //   console.log(data),
-  // );
-
-  // obtenerTodo("taylorbundy", repo).then((data) => {
-  //   const contenido = data.contenido;
-  //   contenido.forEach((conte) => {
-  //     console.log(conte);
-  //   });
-  //   //console.log(data);
-  // });
-
-  // buscarIndexRapido("taylorbundy", repo).then((res) => {
-  //   console.log("Encontrados:", res);
-  // });
-
-  // detectarGitHubPages("taylorbundy", repo).then((res) => {
-  //   console.log("Encontrados:", res);
-  // });
-
-  //buscarArchivo("taylorbundy", repo, "index.html").then(console.log);
-  // buscarArchivo("taylorbundy", repo, "index.html").then((data) => {
-  //   console.log(data);
-  // });
-
-  // async function test() {
-  //   const resultado = await buscarArchivo("TaylorBundy", repo, "index.html");
-
-  //   console.log(resultado);
-  // }
-
-  // test();
 
   // 🌳 TREE (siempre intentar mostrarlo)
   if (treeRes.status === "fulfilled") {
@@ -196,14 +182,28 @@ async function cargarArbol(repo) {
       // }
       //const existe = await urlExiste(enlace);
       const result = await obtenerPaginaValida(enlace);
-      const paginaValida = result.url;
-      //console.log(isValidUrl(enlace)); // true
-      //console.log(isValidUrl("invalid-url")); // false
-      console.log(result.url);
+      const paginaValida = await result.url;
+      //console.log(paginaValida);
+      if (!paginaValida) {
+        detectarGitHubPages("taylorbundy", repo).then((res) => {
+          //console.log("Encontrados:", res.url);
+          //document.getElementById("pagesLink").href = res.url;
+          urlPagina.href = res.url;
+          urlPagina.title = `Click para visitar la pagina del repositorio:\n${res.url}`;
+          urlPagina.style.display = "block";
+        });
+      } else {
+        urlPagina.href = paginaValida;
+        urlPagina.title = `Click para visitar la pagina del repositorio:\n${paginaValida}`;
+        urlPagina.style.display = "block";
+        //console.log(isValidUrl(enlace)); // true
+        //console.log(isValidUrl("invalid-url")); // false
+        //console.log(result);
 
-      //if (pagesData.url) {
-      // iframe.src = enlace;
-      document.getElementById("pagesLink").href = paginaValida;
+        //if (pagesData.url) {
+        // iframe.src = enlace;
+        //document.getElementById("pagesLink").href = paginaValida;
+      }
       //urlPagina.href = paginaValida;
       //urlPagina.title = `Click para visitar la pagina del repositorio:\n${paginaValida}`;
       //}
@@ -215,49 +215,106 @@ async function cargarArbol(repo) {
   }
 }
 
-function renderTree(nodes, container) {
-  nodes.forEach((node) => {
-    const div = document.createElement("div");
-    div.classList.add("tree-item");
+let contadorGlobal = 1;
+let numeroFolder;
+let numeroFile;
 
-    if (node.type === "folder") {
-      div.textContent = "📁 " + node.name;
-      div.title = `Presione para mostrar el contenido de: ${node.name}`;
-      div.classList.add("folder");
+function renderTree(nodes, container, prefijo = "") {
+  //nodes.forEach((node, index) => {
+  nodes
+    .filter((node) => node.name !== ".git") // 👈 ignorar .git
+    .forEach((node, index) => {
+      const div = document.createElement("div");
+      div.classList.add("tree-item");
+      // 👇 Solo numerar en la raíz
+      const numero = prefijo === "" ? `${index + 1}. ` : "";
+      const divNumero = document.createElement("div");
+      const divTexto = document.createElement("div");
+      const imgDiv = document.createElement("img");
+      divNumero.classList.add("divNumero");
+      divTexto.classList.add("divTexto");
+      imgDiv.classList.add("imgDiv");
+      //imgDiv.src = "https://cdn-icons-png.flaticon.com/128/12542/12542638.png";
 
-      const childrenContainer = document.createElement("div");
-      childrenContainer.style.display = "none";
-      childrenContainer.style.marginLeft = "15px";
+      if (node.type === "folder") {
+        //console.log(numero);
+        //numeroFolder = contadorGlobal++;
+        //console.log(numeroFolder);
+        //div.textContent = "📁 " + node.name;
+        divNumero.textContent = numero;
+        //div.textContent = `${numero}📁 ${node.name}`;
+        //divTexto.textContent = `📁 ${node.name}`;
+        divTexto.textContent = `${node.name}`;
+        imgDiv.src =
+          "https://cdn-icons-png.flaticon.com/128/12075/12075374.png";
+        div.title = `Presione para mostrar el contenido de:\n"${node.name}"`;
+        div.classList.add("folder");
 
-      div.onclick = () => {
-        childrenContainer.style.display =
-          childrenContainer.style.display === "none" ? "block" : "none";
-      };
+        const childrenContainer = document.createElement("div");
+        childrenContainer.style.display = "none";
+        childrenContainer.style.marginLeft = "15px";
 
-      container.appendChild(div);
-      container.appendChild(childrenContainer);
+        div.onclick = () => {
+          childrenContainer.style.display =
+            childrenContainer.style.display === "none" ? "block" : "none";
+        };
+        div.appendChild(divNumero);
+        div.appendChild(imgDiv);
+        div.appendChild(divTexto);
+        container.appendChild(div);
+        container.appendChild(childrenContainer);
 
-      renderTree(node.children, childrenContainer);
-    }
+        renderTree(node.children, childrenContainer);
+      }
 
-    if (node.type === "file") {
-      div.textContent = "📄 " + node.name;
-      div.title = `Presione para editar el archivo: ${node.name}`;
-      div.classList.add("file");
+      if (node.type === "file") {
+        //contadorGlobal = "";
+        //console.log(index);
+        //div.textContent = "📄 " + node.name;
+        //numeroFile = contadorGlobal++;
+        //console.log(index);
+        //console.log(node);
+        const archivo = node.name;
+        if (archivo.includes("css")) {
+          imgDiv.src = css;
+        } else if (archivo.includes("txt")) {
+          imgDiv.src = txt;
+        } else if (archivo.includes("html")) {
+          imgDiv.src = html;
+        } else if (archivo.includes("py")) {
+          imgDiv.src = py;
+        } else if (archivo.includes("js")) {
+          imgDiv.src = js;
+        } else if (
+          archivo.includes("avif") ||
+          archivo.includes("png") ||
+          archivo.includes("jpg")
+        ) {
+          imgDiv.src = img;
+        } else if (archivo.includes("ico")) {
+          imgDiv.src = ico;
+        }
+        divNumero.textContent = numero;
+        //divTexto.textContent = `📄 ${node.name}`;
+        divTexto.textContent = `${node.name}`;
+        div.title = `Presione para editar el archivo:\n"${node.name}"`;
+        div.classList.add("file");
 
-      div.onclick = async () => {
-        const res = await fetch(`${API}/file?path=${node.path}`);
+        div.onclick = async () => {
+          const res = await fetch(`${API}/file?path=${node.path}`);
 
-        const contenido = await res.text();
+          const contenido = await res.text();
 
-        archivoActual = node.path;
-        document.getElementById("editor").value = contenido;
-        nombreArchivo.textContent = node.name;
-      };
-
-      container.appendChild(div);
-    }
-  });
+          archivoActual = node.path;
+          document.getElementById("editor").value = contenido;
+          nombreArchivo.textContent = node.name;
+        };
+        div.appendChild(divNumero);
+        div.appendChild(imgDiv);
+        div.appendChild(divTexto);
+        container.appendChild(div);
+      }
+    });
 }
 
 setInterval(async () => {
@@ -274,22 +331,22 @@ function login2() {
 
 function login() {
   const cuenta = document.getElementById("cuenta").value;
-  console.log(cuenta);
+  //console.log(cuenta);
 
   window.location.href = `https://my-github-dashboard.onrender.com/login?cuenta=${cuenta}`;
 }
 
-async function urlExiste2(url) {
-  try {
-    console.log(url);
-    //const res = await fetch(`${API}/check_url?url=${encodeURIComponent(url)}`);
-    const res = await fetch(`${API}/check_url?url=${url}`);
-    const data = await res.json();
-    return data.ok;
-  } catch {
-    return false;
-  }
-}
+// async function urlExiste2(url) {
+//   try {
+//     //console.log(url);
+//     //const res = await fetch(`${API}/check_url?url=${encodeURIComponent(url)}`);
+//     const res = await fetch(`${API}/check_url?url=${url}`);
+//     const data = await res.json();
+//     return data.ok;
+//   } catch {
+//     return false;
+//   }
+// }
 
 async function urlExiste(url) {
   try {
@@ -367,7 +424,7 @@ async function buscarArchivo(owner, repo, archivo) {
     `${API}/buscar?owner=${owner}&repo=${repo}&archivo=${archivo}`,
   );
   const datos = await res.json();
-  console.log(datos);
+  //console.log(datos);
   //return await res.json();
   return datos;
 }
@@ -377,7 +434,7 @@ async function buscarIndex2(owner, repo, path = "") {
 
   const res = await fetch(url);
   const data = await res.json();
-  console.log(data);
+  //console.log(data);
 
   let resultados = [];
 
@@ -461,15 +518,17 @@ async function validarURL(url) {
 }
 
 async function detectarGitHubPages(owner, repo) {
-  const pages = await obtenerPages(owner, repo);
-  if (!pages) return null;
+  //const pages = await obtenerPages(owner, repo);
+  //if (!pages) return null;
 
-  const branch = pages.source.branch;
-  const basePath = pages.source.path || "";
+  //const branch = pages.source.branch;
+  //const basePath = pages.source.path || "";
 
-  const tree = await obtenerTree(owner, repo, branch);
+  const tree = await obtenerTree(owner, repo);
+  //console.log(tree);
 
-  const index = buscarIndex(tree, basePath);
+  const index = buscarIndex(tree);
+  //console.log(index);
   if (!index) return null;
 
   const url = construirURL(owner, repo, index.path);
